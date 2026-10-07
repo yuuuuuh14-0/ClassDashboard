@@ -13,6 +13,10 @@ export async function POST(request: Request) {
     const input = await request.json();
     const error = passwordError(input?.password, input?.confirmation, input?.currentPassword);
     if (error || !validLoginPassword(input?.currentPassword)) return NextResponse.json({ error: error || "현재 비밀번호를 입력해 주세요." }, { status: 400 });
+    const admin = adminClient();
+    const attempt = await admin.rpc("resolve_login", { login_name: account.profile.username });
+    if (attempt.error) throw new Error("LOGIN_RESOLUTION_FAILED");
+    if (!attempt.data?.[0]?.allowed) return NextResponse.json({ error: "확인 시도가 많습니다. 15분 후 다시 시도해 주세요." }, { status: 429 });
     const config = authConfig()!;
     const verifier = createClient(config.url, config.key, { auth: { persistSession: false, autoRefreshToken: false } });
     const verification = await verifier.auth.signInWithPassword({ email: account.user.email!, password: input.currentPassword });
@@ -21,8 +25,9 @@ export async function POST(request: Request) {
     await verifier.auth.signOut({ scope: "local" });
     const update = await account.client.auth.updateUser({ password: input.password });
     if (update.error) return NextResponse.json({ error: "비밀번호를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요." }, { status: 400 });
-    const marked = await adminClient().rpc("mark_password_changed", { target_user: account.user.id });
+    const marked = await admin.rpc("mark_password_changed", { target_user: account.user.id });
     if (marked.error) return NextResponse.json({ error: "비밀번호는 변경됐지만 완료 처리가 지연됐습니다. 현재 비밀번호에 새 비밀번호를 입력해 다시 진행해 주세요." }, { status: 503 });
+    await admin.rpc("reset_login_attempts", { login_name: account.profile.username });
     return NextResponse.json({ redirect: "/dashboard" }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return NextResponse.json({ error: "비밀번호를 변경할 수 없습니다. 잠시 후 다시 시도해 주세요." }, { status: 503 });

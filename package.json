@@ -15,5 +15,21 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "server-only": "^0.0.1"
+  },
+  "name": "class-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/auth.test.ts",
+    "test:e2e": "playwright test",
+    "auth:create-user": "node scripts/create-user.mjs",
+    "auth:verify-live": "node scripts/verify-live-auth.mjs"
   }
 }

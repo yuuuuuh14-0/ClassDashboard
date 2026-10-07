@@ -25,7 +25,7 @@ export async function userClient() {
 
 export function adminClient() {
   const config = authConfig();
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const secret = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!config || !secret) throw new Error("AUTH_NOT_CONFIGURED");
   return createClient(config.url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
 }
