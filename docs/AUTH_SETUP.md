@@ -52,7 +52,7 @@ Supabase Authentication 설정에서는 다음을 확인한다.
 이 작업은 연결된 Supabase에 실제 계정을 만든다. 임시 비밀번호를 명령 인수나 파일에 넣는 대신 PowerShell에서 숨김 입력으로 전달한다.
 
 ```powershell
-$temporaryPassword = Read-Host '임시 비밀번호 12자 이상' -AsSecureString
+$temporaryPassword = Read-Host '임시 비밀번호 6자 이상' -AsSecureString
 $passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($temporaryPassword)
 try {
   $env:BOOTSTRAP_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
@@ -65,7 +65,7 @@ try {
 
 일반 선생님 계정은 같은 방식으로 `npm run auth:create-user -- kim.teacher "김선생"`을 실행한다. 아이디는 사이트 전체에서 유일하며 영문·숫자·점·밑줄·하이픈 4~30자를 사용한다. 로그인할 때 앞뒤 공백과 영문 대소문자를 정규화한다. 비밀번호의 공백은 제거하지 않는다.
 
-임시·새 비밀번호는 12자 이상이며 최대 72 UTF-8 바이트다. 한글처럼 여러 바이트를 쓰는 글자는 최대 글자 수가 줄어든다. 스크립트는 비밀번호와 인증 키를 출력하지 않는다. 최초 로그인 후 비밀번호를 바꿔야 시작 화면으로 이동한다.
+임시·새 비밀번호는 6자 이상이며 최대 72 UTF-8 바이트다. 한글처럼 여러 바이트를 쓰는 글자는 최대 글자 수가 줄어든다. 스크립트는 비밀번호와 인증 키를 출력하지 않는다. 최초 로그인 후 비밀번호를 바꿔야 시작 화면으로 이동한다.
 
 Auth 계정 생성 후 아이디 등록이 실패하면 새로 만든 Auth 계정을 정리한다. 정리도 실패하면 해당 사용자 ID를 운영자가 확인하도록 안내한다. Auth 서비스와 프로필 생성이 하나의 DB 트랜잭션이라고 가정하지 않는다.
 

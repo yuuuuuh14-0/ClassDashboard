@@ -13,9 +13,10 @@ test("Passwords preserve whitespace and enforce the provider's byte limit", () =
   assert.equal(validLoginPassword(""), false);
   assert.equal(validLoginPassword(null), false);
 });
-test("Password change requires a long, matching, different password", () => {
-  assert.equal(passwordError("a-strong-pass", "a-strong-pass", "old-password"), null);
-  assert.match(passwordError("short", "short", "old")!, /12/);
+test("Password change requires at least six characters and a matching, different password", () => {
+  assert.equal(passwordError("abcdef", "abcdef", "old-password"), null);
+  assert.equal(passwordError("\uac00\ub098\ub2e4\ub77c\ub9c8\ubc14", "\uac00\ub098\ub2e4\ub77c\ub9c8\ubc14", "old-password"), null);
+  assert.match(passwordError("short", "short", "old")!, /6/);
   assert.match(passwordError("a-strong-pass", "wrong-confirm", "old")!, /일치/);
   assert.match(passwordError("a-strong-pass", "a-strong-pass", "a-strong-pass")!, /다른/);
   assert.ok(passwordError("가".repeat(25), "가".repeat(25), "old"));

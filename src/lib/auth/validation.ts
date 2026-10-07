@@ -12,7 +12,7 @@ export function validLoginPassword(value: unknown): value is string {
 }
 
 export function passwordError(password: unknown, confirmation: unknown, current: unknown): string | null {
-  if (typeof password !== "string" || [...password].length < 12) return "새 비밀번호는 12자 이상 입력해 주세요.";
+  if (typeof password !== "string" || [...password].length < 6) return "새 비밀번호는 6자 이상 입력해 주세요.";
   if (new TextEncoder().encode(password).length > 72) return "새 비밀번호가 너무 깁니다. 영문 기준 72자 이내로 입력해 주세요.";
   if (password !== confirmation) return "새 비밀번호와 확인 값이 일치하지 않습니다.";
   if (password === current) return "현재 비밀번호와 다른 비밀번호를 입력해 주세요.";
