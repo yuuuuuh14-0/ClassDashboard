@@ -28,7 +28,7 @@ export default async function LoginPage() {
         <LoginForm />
         <div className="account-guide"><span aria-hidden="true">ⓘ</span><p>아직 계정이 없으신가요?<br /><strong>학교 관리자에게 계정 발급을 요청해 주세요.</strong></p></div>
       </div>
-      <p className="login-footer">학급 진도 대시보드 · 함께 배우는 학교</p>
+      <footer className="login-footer"><p>사이트 관리자 (사용 문의, 학교 추가, 학교 관리자 비밀번호 재설정)</p><p>이메일: <a href="mailto:yuuuuuh14@gmail.com">yuuuuuh14@gmail.com</a></p></footer>
     </section>
   </main>;
 }

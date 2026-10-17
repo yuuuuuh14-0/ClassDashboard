@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  distDir: process.env.PLAYWRIGHT_TEST === "1" ? ".cache/next-e2e" : ".next",
   poweredByHeader: false,
   async headers() {
     return [{ source: "/:path*", headers: [

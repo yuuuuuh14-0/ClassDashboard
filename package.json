@@ -30,6 +30,11 @@
     "test": "tsx --test tests/auth.test.ts",
     "test:e2e": "playwright test",
     "auth:create-user": "node scripts/create-user.mjs",
-    "auth:verify-live": "node scripts/verify-live-auth.mjs"
+    "auth:verify-live": "node scripts/verify-live-auth.mjs",
+    "admin:verify-live": "node scripts/verify-live-site-admin.mjs",
+    "grade:setup-test": "node scripts/setup-grade-demo.mjs",
+    "grade:verify-live": "node scripts/verify-live-grade.mjs",
+    "teacher:assign-test": "node scripts/assign-test-teacher.mjs",
+    "workspace:verify-live": "node scripts/verify-live-workspaces.mjs"
   }
 }

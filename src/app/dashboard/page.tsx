@@ -1,16 +1,38 @@
 import { requireAccount } from "@/lib/auth/account";
 import { Brand } from "@/components/brand";
 import { LogoutButton } from "@/components/account-actions";
+import { SiteAdminDashboard } from "@/components/site-admin-dashboard";
+import { siteAdminSnapshot } from "@/lib/site-admin/server";
+import { dashboardAccess, gradeAdminSnapshot } from "@/lib/grade-admin/server";
+import { GradeAdminDashboard } from "@/components/grade-admin-dashboard";
+import { SchoolAdminDashboard } from "@/components/school-admin-dashboard";
+import { TeacherDashboard } from "@/components/teacher-dashboard";
+import { schoolSnapshot, teacherSnapshot } from "@/lib/workspace/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const { profile } = await requireAccount();
-  return <main className="account-page"><header className="app-header"><Brand /><LogoutButton /></header>
-    <section className="welcome-card"><span className="eyebrow">MY WORKSPACE</span><h1>{profile.display_name}님, 반갑습니다.</h1><p className="login-description">로그인한 계정 정보를 확인해 주세요.</p>
-      <dl className="account-details"><div><dt>이름</dt><dd>{profile.display_name}</dd></div><div><dt>아이디</dt><dd>{profile.username}</dd></div><div><dt>계정</dt><dd>{profile.is_site_admin ? "사이트 관리자" : "선생님"}</dd></div><div><dt>상태</dt><dd><span className="status-pill">로그인 완료</span></dd></div></dl>
-      {!profile.is_site_admin && <div className="notice"><strong>담당 학급 배정을 기다리고 있어요.</strong><p>학교 관리자에게 학급 배정을 요청해 주세요.</p></div>}
-      <a className="secondary-button inline-button" href="/password">비밀번호 변경</a>
-    </section>
-  </main>;
+  const { profile, client } = await requireAccount();
+  if (profile.is_site_admin) {
+    let data = null;
+    try { data = await siteAdminSnapshot(client); } catch { /* Render a retry state instead of invented totals. */ }
+    return <SiteAdminDashboard profile={profile} initialData={data} />;
+  }
+  let access;
+  try { access = await dashboardAccess(client); } catch {
+    return <main className="account-page"><header className="app-header"><Brand /><LogoutButton /></header><section className="welcome-card"><h1>배정 정보를 불러오지 못했습니다.</h1><p className="login-description">잠시 후 다시 시도해 주세요.</p><a href="/dashboard" className="secondary-button inline-button">다시 시도</a></section></main>;
+  }
+  if (access.school_role === "school_admin") {
+    let data = null;
+    try { data = await schoolSnapshot(client); } catch { /* Render retry state. */ }
+    return <SchoolAdminDashboard profile={profile} initialData={data} />;
+  }
+  if (access.grades.length) {
+    let data = null;
+    try { data = await gradeAdminSnapshot(client, access.grades[0].id); } catch { /* Show the retry state. */ }
+    return <GradeAdminDashboard profile={profile} contexts={access.grades} initialData={data} />;
+  }
+  let data = null;
+  try { data = await teacherSnapshot(client); } catch { /* Render retry state. */ }
+  return <TeacherDashboard profile={profile} initialData={data} />;
 }

@@ -1,9 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function LogoutButton() {
+  const [ready, setReady] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  useEffect(() => { setReady(true); }, []);
   async function logout() {
     setPending(true); setError("");
     try {
@@ -14,5 +16,5 @@ export function LogoutButton() {
     } catch { setError("연결을 확인하고 다시 시도해 주세요."); }
     finally { setPending(false); }
   }
-  return <div className="logout-action"><button className="secondary-button" onClick={logout} disabled={pending}>{pending ? "로그아웃 중…" : "로그아웃"}</button>{error && <p role="alert" className="form-error">{error}</p>}</div>;
+  return <div className="logout-action"><button className="secondary-button" onClick={logout} disabled={!ready || pending}>{pending ? "로그아웃 중…" : "로그아웃"}</button>{error && <p role="alert" className="form-error">{error}</p>}</div>;
 }

@@ -37,22 +37,22 @@ test("protected routes reject unauthenticated visitors and external POST origins
 });
 
 test("temporary password forces change before workspace access", async ({ page }) => {
-  await login(page, "new.teacher", "temporary-password-2026");
+  await login(page, "new.teacher", "000000");
   await expect(page).toHaveURL(/\/password$/);
   await page.goto("/dashboard"); await expect(page).toHaveURL(/\/password$/);
   await page.getByLabel("현재 비밀번호", { exact: true }).fill("wrong-current-password");
-  await page.getByLabel("새 비밀번호", { exact: true }).fill("changed-password-2026");
-  await page.getByLabel("새 비밀번호 확인", { exact: true }).fill("changed-password-2026");
+  await page.getByLabel("새 비밀번호", { exact: true }).fill("Changed-password-2026!");
+  await page.getByLabel("새 비밀번호 확인", { exact: true }).fill("Changed-password-2026!");
   await page.getByRole("button", { name: "변경하고 시작하기" }).click();
   await expect(page.getByText("현재 비밀번호를 확인해 주세요.", { exact: true })).toBeVisible();
-  await page.getByLabel("현재 비밀번호", { exact: true }).fill("temporary-password-2026");
-  await page.getByLabel("새 비밀번호", { exact: true }).fill("changed-password-2026");
-  await page.getByLabel("새 비밀번호 확인", { exact: true }).fill("changed-password-2026");
+  await page.getByLabel("현재 비밀번호", { exact: true }).fill("000000");
+  await page.getByLabel("새 비밀번호", { exact: true }).fill("Changed-password-2026!");
+  await page.getByLabel("새 비밀번호 확인", { exact: true }).fill("Changed-password-2026!");
   await page.getByRole("button", { name: "변경하고 시작하기" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
   await page.getByRole("button", { name: "로그아웃", exact: true }).click();
   await expect(page).toHaveURL(/\/login$/);
-  await login(page, "new.teacher", "changed-password-2026");
+  await login(page, "new.teacher", "Changed-password-2026!");
   await expect(page).toHaveURL(/\/dashboard$/);
 });
 
@@ -66,6 +66,30 @@ test("password visibility, recovery help, and small-screen layout", async ({ pag
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.setViewportSize({ width: 1440, height: 960 }); await page.goto("/login");
   await page.screenshot({ path: "test-results/login-desktop.png", fullPage: true, caret: "initial" });
+});
+
+test("password changes reject weak values in both the form and direct server requests", async ({ page }) => {
+  await login(page, "new.teacher", "000000");
+  await expect(page).toHaveURL(/\/password$/);
+  await page.getByLabel("현재 비밀번호", { exact: true }).fill("000000");
+  await page.getByLabel("새 비밀번호", { exact: true }).fill("abcdefgh1!");
+  await page.getByLabel("새 비밀번호 확인", { exact: true }).fill("abcdefgh1!");
+  await page.getByRole("button", { name: "변경하고 시작하기" }).click();
+  await expect(page.getByText("8자 이상이며 영문 대문자·소문자, 숫자, 특수문자를 모두 포함해 주세요.", { exact: true })).toBeVisible();
+  for (const password of ["000000", "Aa1!abc", "abcdefgh1!", "ABCDEFGH1!", "Abcdefgh!", "Abcdefgh1", "Abc123  "]) {
+    const response = await page.request.post("/api/auth/password", {
+      headers: { Origin: "http://127.0.0.1:3100" },
+      data: { currentPassword: "000000", password, confirmation: password },
+    });
+    expect(response.status()).toBe(400);
+  }
+  const workspace = await page.request.get("/dashboard", { maxRedirects: 0 });
+  expect(workspace.status()).toBe(307);
+  expect(workspace.headers().location).toBe("/password");
+  await page.getByRole("button", { name: "로그아웃", exact: true }).click();
+  await expect(page).toHaveURL(/\/login$/);
+  await login(page, "new.teacher", "000000");
+  await expect(page).toHaveURL(/\/password$/);
 });
 
 test("repeated failures are limited without disclosing whether the ID exists", async ({ request }) => {

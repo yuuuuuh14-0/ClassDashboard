@@ -23,7 +23,7 @@ function pass(label) { console.log(`PASS: ${label}`); }
 async function makeAccount() {
   const username = `verify.${randomBytes(7).toString("hex")}`;
   const email = `${randomUUID()}@${domain}`;
-  const password = passwords();
+  const password = "000000";
   const { data, error } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
   check(!error && data.user, `Create temporary Auth account (${error?.code || "unknown"})`);
   createdIds.push(data.user.id); attemptNames.push(username);
@@ -78,6 +78,11 @@ try {
   await userClient.auth.signOut({ scope: "local" });
 
   const newPassword = passwords();
+  for (const password of ["000000", "Aa1!abc", "abcdefgh1!", "ABCDEFGH1!", "Abcdefgh!", "Abcdefgh1", "Abc123  "]) {
+    const weak = await api.post("/api/auth/password", { data: { currentPassword: first.password, password, confirmation: password } });
+    check(weak.status() === 400, "Server must reject a password missing length or a required character group");
+  }
+  pass("Initial 000000 password works; new-password length and all four character groups are enforced by the server");
   const wrongCurrent = await api.post("/api/auth/password", { data: { currentPassword: "wrong-password-2026", password: newPassword, confirmation: newPassword } });
   check(wrongCurrent.status() === 400, "Wrong current password must be rejected");
   const changed = await api.post("/api/auth/password", { data: { currentPassword: first.password, password: newPassword, confirmation: newPassword } });
@@ -123,7 +128,7 @@ try {
   await userClient.auth.signOut({ scope: "local" });
   pass("Real DB session revocation blocks both profile reads and app access");
 } catch (error) {
-  failure = error instanceof Error ? error.message : "Live authentication verification failed";
+  failure = error instanceof Error ? error.message.split(/\r?\n/)[0] : "Live authentication verification failed";
 } finally {
   let cleanupFailed = false;
   for (const api of contexts) {
