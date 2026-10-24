@@ -18,7 +18,7 @@ test("ordinary teacher saves only own progress, retains it after reload, and see
   expect((await page.request.post("/api/teacher",{headers:origin,data:{classroom_id:other.id,unit_id:unit,completed:true,version:1}})).status()).toBe(403);
   expect((await page.request.get("/api/school-admin")).status()).toBe(403);
   await page.getByRole("button", { name:"학년 진도 비교",exact:true }).click();
-  await expect(page.getByRole("columnheader", { name:"국어(평균: 44%)",exact:true })).toBeVisible();
+  await expect(page.getByRole("columnheader").getByRole("meter", { name:"국어 평균 진도율",exact:true })).toHaveAttribute("aria-valuetext", "44%");
   await page.getByRole("button",{name:"3학년 1반 국어 진도 보기",exact:true}).click();
   await expect(page.getByRole("heading",{name:"3학년 1반 단원별 진도 조회 전용",exact:true})).toBeVisible();
   await expect(page.getByRole("checkbox").first()).toBeDisabled();
