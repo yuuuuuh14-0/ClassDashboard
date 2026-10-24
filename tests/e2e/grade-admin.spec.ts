@@ -15,7 +15,9 @@ test("grade dashboard displays real-shaped grade scope, comparison, subject deta
   await expect(page.getByRole("heading", { name: "3학년의 배움, 함께 살펴보세요." })).toBeVisible();
   const table = page.getByRole("table", { name: "3학년 학급별 과목 진도 비교" });
   await expect(table.getByRole("row")).toHaveCount(4);
-  await expect(table.getByRole("columnheader", { name: "국어", exact: true })).toBeVisible();
+  await expect(table.getByRole("columnheader", { name: "국어(평균: 50%)", exact: true })).toBeVisible();
+  await expect(table.getByRole("columnheader", { name: "과학(평균: 92%)", exact: true })).toBeVisible();
+  await expect(table.getByRole("columnheader", { name: "영어(평균: —)", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "3학년 1반 국어 진도 보기", exact: true })).toContainText("33%");
   await expect(page.getByRole("button", { name: "3학년 1반 영어 진도 보기", exact: true })).toContainText("단원 미등록");
   await page.screenshot({ path: "test-results/grade-admin-desktop.png", fullPage: true });
