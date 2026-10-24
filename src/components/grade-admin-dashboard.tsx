@@ -2,19 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Profile } from "@/lib/auth/account";
-import type { GradeContext, GradeSnapshot, GradeClassroom, GradeSubject, ClassSubject } from "@/lib/grade-admin/types";
+import type { GradeContext, GradeSnapshot, GradeClassroom, GradeSubject } from "@/lib/grade-admin/types";
 import { Brand } from "./brand";
 import { LogoutButton } from "./account-actions";
+import { ComparisonProgress as Rate } from "./comparison-progress";
 
 type View = "overview" | "classroom" | "students" | "curriculum";
 const navigation: { id: View; label: string; mark: string }[] = [
   { id: "overview", label: "학년 현황", mark: "▦" }, { id: "classroom", label: "학급 진도 조회", mark: "▤" },
   { id: "students", label: "학생 명단", mark: "☷" }, { id: "curriculum", label: "공통 교육과정", mark: "▥" },
 ];
-function Rate({ value }: { value: ClassSubject | undefined }) {
-  if (!value || !value.total) return <span className="grade-no-units">—<small>단원 미등록</small></span>;
-  return <span className="grade-rate"><strong>{value.percentage?.toFixed(1)}%</strong><small>{value.completed}/{value.total} 단원</small><span className="grade-track"><i style={{ width: `${value.percentage ?? 0}%` }} /></span></span>;
-}
 const stamp = (value: string) => new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(value));
 
 export function GradeAdminDashboard({ profile, contexts, initialData }: { profile: Profile; contexts: GradeContext[]; initialData: GradeSnapshot | null }) {

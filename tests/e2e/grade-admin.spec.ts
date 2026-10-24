@@ -16,7 +16,7 @@ test("grade dashboard displays real-shaped grade scope, comparison, subject deta
   const table = page.getByRole("table", { name: "3학년 학급별 과목 진도 비교" });
   await expect(table.getByRole("row")).toHaveCount(4);
   await expect(table.getByRole("columnheader", { name: "국어", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "3학년 1반 국어 진도 보기", exact: true })).toContainText("33.3%");
+  await expect(page.getByRole("button", { name: "3학년 1반 국어 진도 보기", exact: true })).toContainText("33%");
   await expect(page.getByRole("button", { name: "3학년 1반 영어 진도 보기", exact: true })).toContainText("단원 미등록");
   await page.screenshot({ path: "test-results/grade-admin-desktop.png", fullPage: true });
   await page.getByLabel("비교할 과목", { exact: true }).selectOption({ label: "국어" });
