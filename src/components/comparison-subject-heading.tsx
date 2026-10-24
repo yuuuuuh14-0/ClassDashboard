@@ -14,7 +14,7 @@ export function ComparisonSubjectHeading({ subject, classrooms }: {
     {average !== null && <span className="grade-subject-background" role="meter" aria-label={`${subject.name} 평균 진도율`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={average} aria-valuetext={`${Math.round(average)}%`}>
       <span className="grade-subject-fill" style={{ width: `${average}%` }} />
     </span>}
-    <span className="grade-subject-title">{subject.name}</span>
+    <span className="grade-subject-title">{subject.name}{average !== null && ` (${Math.round(average)}%)`}</span>
     {average === null && <span className="sr-only">단원 미등록</span>}
   </span>;
 }
