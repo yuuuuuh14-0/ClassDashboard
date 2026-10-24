@@ -1,5 +1,4 @@
 import type { GradeClassroom, GradeSubject } from "@/lib/grade-admin/types";
-import { ProgressMeter } from "./comparison-progress";
 
 export function ComparisonSubjectHeading({ subject, classrooms }: {
   subject: Pick<GradeSubject, "id" | "name">;
@@ -11,10 +10,11 @@ export function ComparisonSubjectHeading({ subject, classrooms }: {
   });
   const average = rates.length ? rates.reduce((sum, rate) => sum + rate, 0) / rates.length : null;
 
-  return <span className="grade-subject-heading">
+  return <span className="grade-subject-heading" title={average === null ? `${subject.name} · 단원 미등록` : `${subject.name} 평균 진도율 ${Math.round(average)}%`}>
+    {average !== null && <span className="grade-subject-background" role="meter" aria-label={`${subject.name} 평균 진도율`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={average} aria-valuetext={`${Math.round(average)}%`}>
+      <span className="grade-subject-fill" style={{ width: `${average}%` }} />
+    </span>}
     <span className="grade-subject-title">{subject.name}</span>
-    {average === null
-      ? <span className="grade-subject-no-average">—<small>단원 미등록</small></span>
-      : <ProgressMeter percentage={average} label={`${subject.name} 평균 진도율`} />}
+    {average === null && <span className="sr-only">단원 미등록</span>}
   </span>;
 }
